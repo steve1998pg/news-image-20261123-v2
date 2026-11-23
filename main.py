@@ -4,6 +4,11 @@
 Refuses to copy anything that is not the expected 1024x1024 PNG under
 1 MiB, and prints the sha256 of the file it wrote so the copy can be
 checked against news.png.
+
+v3 (23 Nov 2026): the fact-checked rebuild of the 23 Nov 2026 front page
+— four wrongly dated v2 stories replaced, attribution and place errors
+fixed. Rendered by render.py from stories.json; this file only copies
+the finished image.
 """
 import hashlib
 import os

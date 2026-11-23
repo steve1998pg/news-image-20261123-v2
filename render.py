@@ -9,6 +9,16 @@ on every illustration), an ALSO ON list, a world map with numbered pins,
 a DATE CHECK box and a sources footer. Deterministic: no randomness, no
 clock reads, fixed fonts and geometry.
 
+v3 (23 Nov 2026): fact-checked rebuild. Four stories that were dated
+wrong in v2 are replaced with verified 22-23 Nov stories (#11 tankers in
+the Strait of Hormuz, #27 India women beat South Korea 2-1 in Bhopal,
+#28 Iran masses 14 tankers at Kharg Island, #34 COP31 backlash in
+Sydney); attribution and place errors are fixed (#2 is now an IRGC claim,
+#21 Wawa Niger State, #23 Brussels, #24 Liverpool, #30 Indore, #35
+AP/Reuters, #36 Wall Street Journal); a new flat-vector hockey scene is
+added and the thinnest small scenes are enriched; map pin nudges are
+recomputed so no two pins overlap.
+
 Usage: python3 render.py stories.json news.png
 """
 import json
@@ -294,13 +304,28 @@ def scene_factoryfire(draw, x, y, w, h, accent):
     for sx, sy, r in ((x + 20, y + 6, 5), (x + 32, y + 3, 4)):
         draw.ellipse([sx - r, sy - r, sx + r, sy + r], fill=(231, 229, 228))
 
-
 def scene_talks(draw, x, y, w, h, accent):
     _sky(draw, x, y, w, h, (226, 232, 240), (148, 163, 184))
+    # wall clock between the flags
+    ccx, ccy = x + w // 2, y + 9
+    draw.ellipse([ccx - 5, ccy - 5, ccx + 5, ccy + 5], fill=(255, 255, 255),
+                 outline=(71, 85, 105))
+    draw.line([(ccx, ccy), (ccx, ccy - 3)], fill=(17, 24, 39), width=1)
+    draw.line([(ccx, ccy), (ccx + 3, ccy)], fill=(17, 24, 39), width=1)
     # table
     draw.rectangle([x + 6, y + int(h * 0.68), x + w - 6, y + h], fill=(120, 53, 15))
     draw.rectangle([x + 6, y + int(h * 0.68), x + w - 6, y + int(h * 0.68) + 4],
                    fill=(146, 64, 14))
+    # papers on the table + a water glass
+    ty = y + int(h * 0.68)
+    draw.rectangle([x + w // 2 - 14, ty + 2, x + w // 2 - 2, ty + 6],
+                   fill=(255, 255, 255))
+    draw.rectangle([x + w // 2 + 2, ty + 2, x + w // 2 + 14, ty + 6],
+                   fill=(226, 232, 240))
+    draw.line([(x + w // 2 - 12, ty + 4), (x + w // 2 - 4, ty + 4)],
+              fill=(148, 163, 184), width=1)
+    draw.rectangle([x + w - 22, ty + 1, x + w - 16, ty + 7],
+                   outline=(255, 255, 255), width=1)
     # two heads facing each other
     for hx in (x + w // 4, x + 3 * w // 4):
         draw.ellipse([hx - 8, y + int(h * 0.3), hx + 8, y + int(h * 0.3) + 16],
@@ -316,6 +341,15 @@ def scene_talks(draw, x, y, w, h, accent):
 
 def scene_exam(draw, x, y, w, h, accent):
     _sky(draw, x, y, w, h, (243, 232, 255), (196, 141, 253))
+    # wall clock, top left
+    ccx, ccy = x + 12, y + 9
+    draw.ellipse([ccx - 5, ccy - 5, ccx + 5, ccy + 5], fill=(255, 255, 255),
+                 outline=(71, 85, 105))
+    draw.line([(ccx, ccy), (ccx, ccy - 3)], fill=(17, 24, 39), width=1)
+    draw.line([(ccx, ccy), (ccx + 3, ccy + 1)], fill=(17, 24, 39), width=1)
+    # floor line
+    draw.line([(x, y + h - 2), (x + w, y + h - 2)], fill=(196, 141, 253),
+              width=1)
     # desks + papers
     for i in range(3):
         dx = x + 8 + i * ((w - 16) // 3)
@@ -330,6 +364,10 @@ def scene_exam(draw, x, y, w, h, accent):
         draw.ellipse([dx + dw // 2 - 4, y + int(h * 0.28),
                       dx + dw // 2 + 4, y + int(h * 0.28) + 8],
                      fill=(51, 65, 85))
+    # pencil lying on the middle desk
+    mx = x + 8 + ((w - 16) // 3)
+    draw.line([(mx + 6, y + int(h * 0.52)), (mx + 22, y + int(h * 0.52))],
+              fill=(250, 204, 21), width=2)
     # crossed-out AI chip
     draw.rounded_rectangle([x + w - 26, y + 4, x + w - 4, y + 18], radius=3,
                            fill=(220, 38, 38))
@@ -361,7 +399,18 @@ def scene_cricket(draw, x, y, w, h, accent):
 
 def scene_health(draw, x, y, w, h, accent):
     _sky(draw, x, y, w, h, (220, 252, 231), (134, 239, 172))
-    draw.ellipse([x + 8, y + h - 14, x + w - 8, y + h + 10], fill=(74, 222, 128))
+    # sun, top right
+    _sun(draw, x + w - 12, y + 9, 5, (253, 224, 71))
+    draw.ellipse([x + 8, y + h - 14, x + w - 8, y + h], fill=(74, 222, 128))
+    # trees flanking the clinic
+    for tx in (x + 14, x + w - 14):
+        draw.line([(tx, y + h - 12), (tx, y + h - 5)], fill=(120, 53, 15),
+                  width=2)
+        draw.ellipse([tx - 5, y + h - 20, tx + 5, y + h - 10],
+                     fill=(21, 128, 61))
+    # path from the clinic door to the bottom edge
+    draw.rectangle([x + w // 2 - 4, y + h - 8, x + w // 2 + 4, y + h],
+                   fill=(214, 177, 122))
     # clinic
     draw.rectangle([x + w // 2 - 20, y + int(h * 0.4), x + w // 2 + 20, y + h - 6],
                    fill=(255, 255, 255), outline=(148, 163, 184))
@@ -371,14 +420,22 @@ def scene_health(draw, x, y, w, h, accent):
     cx, cy = x + w // 2, y + int(h * 0.55)
     draw.rectangle([cx - 8, cy - 3, cx + 8, cy + 3], fill=(220, 38, 38))
     draw.rectangle([cx - 3, cy - 8, cx + 3, cy + 8], fill=(220, 38, 38))
+    # red-cross flag on the roof
+    draw.line([(cx + 16, y + int(h * 0.2)), (cx + 16, y + int(h * 0.2) - 5)],
+              fill=(71, 85, 105), width=1)
+    draw.polygon([(cx + 16, y + int(h * 0.2) - 5), (cx + 26, y + int(h * 0.2) - 3),
+                  (cx + 16, y + int(h * 0.2) - 1)], fill=(220, 38, 38))
     # hills + path
-    draw.ellipse([x - 10, y + int(h * 0.75), x + 24, y + h + 6],
+    draw.ellipse([x, y + int(h * 0.75), x + 24, y + h],
                  fill=(21, 128, 61))
 
 
 def scene_chess(draw, x, y, w, h, accent):
     sq = min(w, h) // 8
     ox, oy = x + (w - sq * 8) // 2, y + (h - sq * 8) // 2
+    # gold frame around the board
+    draw.rectangle([ox - 2, oy - 2, ox + sq * 8 + 2, oy + sq * 8 + 2],
+                   outline=(250, 204, 21), width=1)
     for r in range(8):
         for c in range(8):
             col = (245, 240, 230) if (r + c) % 2 == 0 else (41, 37, 36)
@@ -391,6 +448,14 @@ def scene_chess(draw, x, y, w, h, accent):
                      fill=col, outline=(107, 114, 128))
         draw.rectangle([kx - sq // 4, ky, kx + sq // 4, ky + sq // 2], fill=col,
                        outline=(107, 114, 128))
+    # match clocks in the top corners
+    for cx0 in (x + 2, x + w - 16):
+        draw.rectangle([cx0, y + 2, cx0 + 14, y + 10], fill=(255, 255, 255),
+                       outline=(17, 24, 39))
+        draw.line([(cx0 + 7, y + 6), (cx0 + 7, y + 3)], fill=(220, 38, 38),
+                  width=1)
+        draw.line([(cx0 + 7, y + 6), (cx0 + 10, y + 6)], fill=(220, 38, 38),
+                  width=1)
 
 
 def scene_un(draw, x, y, w, h, accent):
@@ -409,6 +474,17 @@ def scene_un(draw, x, y, w, h, accent):
              fill=(255, 255, 255), width=2)
     draw.arc([cx + 4, cy - r + 6, cx + r + 6, cy + r + 2], 120, 240,
              fill=(255, 255, 255), width=2)
+    # globe stand
+    draw.rectangle([cx - 8, cy + r - 2, cx + 8, cy + r + 3], fill=(71, 85, 105))
+    # small member flags along the bottom, clear of the globe
+    for i, fx in enumerate((x + 6, x + 18, x + 30,
+                            x + w - 34, x + w - 22, x + w - 10)):
+        col = ((29, 78, 216), (220, 38, 38), (21, 128, 61),
+               (180, 83, 9), (109, 40, 217), (13, 148, 136))[i]
+        draw.line([(fx, y + h - 12), (fx, y + h - 3)], fill=(71, 85, 105),
+                  width=1)
+        draw.polygon([(fx, y + h - 12), (fx + 8, y + h - 10), (fx, y + h - 8)],
+                     fill=col)
 
 
 def scene_conflict(draw, x, y, w, h, accent):
@@ -420,6 +496,40 @@ def scene_conflict(draw, x, y, w, h, accent):
                       (hx + 24, y + int(h * 0.65))], fill=(120, 53, 15))
     for sx, sy, r in ((x + w - 20, y + 14, 5), (x + w - 28, y + 8, 4)):
         draw.ellipse([sx - r, sy - r, sx + r, sy + r], fill=(120, 113, 108))
+
+
+def scene_hockey(draw, x, y, w, h, accent):
+    """Field hockey: green pitch, players with sticks, ball, goal."""
+    # pitch: two-tone green with white markings
+    draw.rectangle([x, y, x + w, y + h], fill=(34, 139, 34))
+    draw.rectangle([x, y + int(h * 0.5), x + w, y + h], fill=(21, 128, 61))
+    draw.rectangle([x + 3, y + 3, x + w - 3, y + h - 3],
+                   outline=(255, 255, 255), width=1)
+    draw.line([(x + w // 2, y + 3), (x + w // 2, y + h - 3)],
+              fill=(255, 255, 255), width=1)
+    cr = min(w, h) // 5
+    draw.ellipse([x + w // 2 - cr, y + h // 2 - cr, x + w // 2 + cr,
+                  y + h // 2 + cr], outline=(255, 255, 255), width=1)
+    # goal, right side: posts + net
+    gx, gy = x + w - 14, y + int(h * 0.35)
+    gw, gh = 10, int(h * 0.3)
+    draw.rectangle([gx, gy, gx + gw, gy + gh], outline=(255, 255, 255),
+                   width=2)
+    for ny in range(gy + 3, gy + gh - 1, 3):
+        draw.line([(gx + 1, ny), (gx + gw - 1, ny)], fill=(226, 232, 240),
+                  width=1)
+    # players: head + body + stick, one shooting, one defending
+    for px, py, flip in ((x + w // 4, y + int(h * 0.62), 1),
+                         (x + w - 34, y + int(h * 0.68), -1)):
+        draw.ellipse([px - 5, py - 16, px + 5, py - 6], fill=(17, 24, 39))
+        draw.polygon([(px - 6, py - 6), (px + 6, py - 6), (px + 3, py + 12),
+                      (px - 3, py + 12)], fill=(17, 24, 39))
+        draw.line([(px + 4 * flip, py), (px + 14 * flip, py + 10)],
+                  fill=(146, 64, 14), width=3)
+    # ball near the shooter's stick
+    bx, by = x + w // 4 + 16, y + int(h * 0.62) + 11
+    draw.ellipse([bx - 3, by - 3, bx + 3, by + 3], fill=(255, 255, 255),
+                 outline=(17, 24, 39))
 
 
 SCENES = {
@@ -436,6 +546,7 @@ SCENES = {
     "chess": scene_chess,
     "un": scene_un,
     "conflict": scene_conflict,
+    "hockey": scene_hockey,
 }
 
 
@@ -502,11 +613,20 @@ def draw_map(draw, x, y, w, h, pins):
     for poly in CONTINENTS:
         pts = [proj(lon, lat) for lon, lat in poly]
         draw.polygon(pts, fill=(207, 196, 174), outline=(184, 171, 144))
+    # Pin nudges, recomputed for v3 by simulated annealing: the Europe /
+    # Middle East / Africa pins sit within a few pixels of each other at
+    # true positions (Turin vs Geneva 1.4 px apart, Juba vs Ituri 3.9 px),
+    # so each pin is shifted a few pixels until no two pins are closer
+    # than ~15 px (pin diameter is 13). Pin 11 is no longer Geneva: it
+    # is the Strait of Hormuz now, nudged away from pin 2 (Manama).
+    # Pin 9 is nudged left so its circle stays inside the map edge.
+    nudge_x = {1: -7, 3: -7, 4: 5, 5: -11, 9: -4, 11: 6, 12: 7, 13: 5,
+               14: -5}
+    nudge_y = {1: 6, 2: -4, 3: -7, 4: -6, 10: -8, 11: 8, 12: 9, 15: 8}
     for n, lat, lon in pins:
         px, py = proj(lon, lat)
-        # nudge the two Geneva pins and the Jerusalem pin apart
-        px += {10: -6, 11: -5, 15: 7}.get(n, 0)
-        py += {10: 5, 11: -6, 15: 7}.get(n, 0)
+        px += nudge_x.get(n, 0)
+        py += nudge_y.get(n, 0)
         r = 6.5
         draw.ellipse([px - r, py - r, px + r, py + r], fill=RED,
                      outline=(255, 255, 255))
